@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cleanify Core - Ultra Neon</title>
+    <title>Cleanify Core - Ultra Neon vFinal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -24,196 +24,197 @@
             overflow-x: hidden;
         }
 
-        /* Efek Neon Flicker pada Judul */
         @keyframes flicker {
             0%, 18%, 22%, 25%, 53%, 57%, 100% {
                 text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px var(--neon-cyan), 0 0 42px var(--neon-cyan);
             }
             20%, 24%, 55% { text-shadow: none; }
         }
-        .neon-text-cyan { animation: flicker 3s infinite alternate; color: #fff; }
+        .neon-text-cyan { animation: flicker 3s infinite alternate; }
 
-        /* Card Futuristik */
         .cyber-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(0, 243, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 243, 255, 0.1);
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%);
         }
-        .cyber-card:hover {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
-            transform: translateY(-5px);
-        }
 
-        /* Button Power States */
+        /* Tombol Power - Base */
         .pwr-btn {
-            position: relative;
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 2px;
             border: 1px solid rgba(255,255,255,0.1);
-        }
-        .btn-on.active {
-            background: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 30px var(--neon-green);
-            border-color: var(--neon-green);
-        }
-        .btn-off.active {
-            background: var(--neon-pink);
-            color: #fff;
-            box-shadow: 0 0 30px var(--neon-pink);
-            border-color: var(--neon-pink);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.4);
         }
 
-        @media (max-width: 640px) {
-            .cyber-card { clip-path: none; border-radius: 15px; }
+        /* Neon Glow ON (Green) */
+        .btn-active-on {
+            background: rgba(57, 255, 20, 0.1) !important;
+            color: var(--neon-green) !important;
+            border-color: var(--neon-green) !important;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.4), inset 0 0 15px rgba(57, 255, 20, 0.2);
+            text-shadow: 0 0 10px var(--neon-green);
+            transform: translateY(-2px);
         }
+
+        /* Neon Glow OFF (Pink) */
+        .btn-active-off {
+            background: rgba(255, 0, 193, 0.1) !important;
+            color: var(--neon-pink) !important;
+            border-color: var(--neon-pink) !important;
+            box-shadow: 0 0 20px rgba(255, 0, 193, 0.4), inset 0 0 15px rgba(255, 0, 193, 0.2);
+            text-shadow: 0 0 10px var(--neon-pink);
+            transform: translateY(-2px);
+        }
+
+        .pulse-cyan { box-shadow: 0 0 15px var(--neon-cyan); }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-6 md:p-12">
 
-    <div class="max-w-6xl mx-auto flex justify-between items-center mb-12 border-b border-white/10 pb-6">
-        <div class="flex flex-col">
-            <h1 class="font-orbitron text-2xl md:text-4xl neon-text-cyan tracking-tighter italic">CLEANIFY_UNIT.01</h1>
-            <span class="text-[10px] text-cyan-500 tracking-[0.5em] uppercase mt-1">Blitar Raya Command Center</span>
+    <div class="max-w-6xl mx-auto flex justify-between items-center mb-12 border-b border-white/10 pb-8">
+        <div>
+            <h1 class="font-orbitron text-3xl md:text-5xl neon-text-cyan tracking-tighter italic font-black">CLEANIFY_UNIT.01</h1>
+            <p class="text-[10px] text-cyan-500 tracking-[0.6em] uppercase mt-2 font-bold">Blitar Raya Command Center</p>
         </div>
-        <div id="mqtt-status" class="flex items-center gap-3 bg-red-900/20 px-5 py-2 border border-red-500/50 rounded-full transition-all duration-500">
+        <div id="mqtt-status" class="flex items-center gap-3 bg-red-900/20 px-6 py-2 border border-red-500/50 rounded-full transition-all duration-500">
             <div id="status-dot" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-            <span id="status-text" class="text-[10px] font-bold text-red-500 uppercase tracking-widest">System Offline</span>
+            <span id="status-text" class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Connecting</span>
         </div>
     </div>
 
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        <div class="cyber-card p-10 flex flex-col items-center justify-center min-h-[280px]">
-            <span class="absolute top-5 left-5 text-[10px] text-cyan-400 font-bold uppercase tracking-widest opacity-50">Atmospheric_Data</span>
+        <div class="cyber-card p-10 flex flex-col items-center justify-center min-h-[320px]">
+            <span class="absolute top-5 left-5 text-[10px] text-cyan-400 font-bold uppercase tracking-widest opacity-40">Module_Thermal_01</span>
             <div class="flex items-baseline">
-                <span id="temp-val" class="font-orbitron font-black text-8xl transition-all duration-500 text-white">--</span>
+                <span id="temp-val" class="font-orbitron font-black text-8xl text-white">--</span>
                 <span class="text-3xl text-cyan-400 ml-2 font-bold">°C</span>
             </div>
-            <div class="w-full h-1.5 bg-white/5 rounded-full mt-8 overflow-hidden">
-                <div id="temp-bar" class="h-full bg-cyan-400 transition-all duration-1000 w-0 shadow-[0_0_20px_#00f3ff]"></div>
+            <div class="w-full h-1.5 bg-white/5 rounded-full mt-10 overflow-hidden">
+                <div id="temp-bar" class="h-full bg-cyan-400 transition-all duration-1000 w-0 shadow-[0_0_15px_#00f3ff]"></div>
             </div>
         </div>
 
-        <div class="cyber-card p-10 flex flex-col justify-between min-h-[280px]">
-            <span class="text-[10px] text-pink-400 font-bold uppercase tracking-widest mb-6 opacity-50">Power_Management</span>
+        <div class="cyber-card p-10 flex flex-col justify-between min-h-[320px]">
+            <span class="text-[10px] text-pink-400 font-bold uppercase tracking-widest mb-8 opacity-40">Energy_Grid_Control</span>
             <div class="flex flex-col gap-5">
-                <button id="pwr-on" onclick="setPower(true)" class="pwr-btn py-5 rounded-lg hover:bg-white/5">
-                    Engage Power
-                </button>
-                <button id="pwr-off" onclick="setPower(false)" class="pwr-btn py-5 rounded-lg hover:bg-white/5">
-                    Disengage Flow
-                </button>
+                <button id="btn-pwr-on" onclick="sendControl('actuator/relay', 'ON')" class="pwr-btn py-6 rounded-lg font-bold">Engage Power</button>
+                <button id="btn-pwr-off" onclick="sendControl('actuator/relay', 'OFF')" class="pwr-btn py-6 rounded-lg font-bold">Kill Circuit</button>
             </div>
-            <div id="pwr-label" class="mt-6 text-center text-[10px] text-slate-500 italic uppercase tracking-widest">State: Unknown</div>
+            <p id="pwr-status" class="mt-8 text-center text-[10px] text-slate-500 uppercase tracking-widest font-bold italic">State: Standby</p>
         </div>
 
-        <div class="cyber-card p-10 flex flex-col justify-between min-h-[280px]">
-            <span class="text-[10px] text-amber-400 font-bold uppercase tracking-widest mb-6 opacity-50">Hydraulic_Actuator</span>
-            <div class="flex flex-col gap-4">
-                <div class="flex gap-4">
-                    <button onclick="sendMQTT('actuator/servo', 'LEFT')" class="flex-1 bg-white/5 border border-white/10 py-10 rounded-lg hover:border-amber-400 transition-all flex flex-col items-center gap-3">
-                        <span class="text-amber-400 font-black text-xl">◀</span>
-                        <span class="text-[10px] uppercase font-bold tracking-widest">Left</span>
-                    </button>
-                    <button onclick="sendMQTT('actuator/servo', 'RIGHT')" class="flex-1 bg-white/5 border border-white/10 py-10 rounded-lg hover:border-amber-400 transition-all flex flex-col items-center gap-3">
-                        <span class="text-amber-400 font-black text-xl">▶</span>
-                        <span class="text-[10px] uppercase font-bold tracking-widest">Right</span>
-                    </button>
-                </div>
+        <div class="cyber-card p-10 flex flex-col justify-between min-h-[320px]">
+            <span class="text-[10px] text-amber-400 font-bold uppercase tracking-widest mb-8 opacity-40">Actuator_Servo_X</span>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="sendControl('actuator/servo', 'LEFT')" class="bg-white/5 border border-white/10 py-14 rounded-lg hover:border-amber-400 transition-all flex flex-col items-center justify-center group">
+                    <span class="text-amber-400 text-3xl mb-3 group-hover:scale-125 transition-transform">◀</span>
+                    <span class="text-[9px] uppercase font-bold tracking-widest">Left</span>
+                </button>
+                <button onclick="sendControl('actuator/servo', 'RIGHT')" class="bg-white/5 border border-white/10 py-14 rounded-lg hover:border-amber-400 transition-all flex flex-col items-center justify-center group">
+                    <span class="text-amber-400 text-3xl mb-3 group-hover:scale-125 transition-transform">▶</span>
+                    <span class="text-[9px] uppercase font-bold tracking-widest">Right</span>
+                </button>
             </div>
         </div>
-
-    </div>
-
-    <div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-        <div class="absolute top-[20%] left-[10%] w-[40vw] h-[40vw] bg-cyan-900/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[10%] right-[10%] w-[30vw] h-[30vw] bg-pink-900/10 rounded-full blur-[100px]"></div>
     </div>
 
     <script>
-        // --- KONFIGURASI VPS PRIBADI ---
-        const BROKER = "iot.anons.biz.id"; // GANTI DENGAN IP VPS DOMAINESIA KAMU
-        const PORT = 443; // Port WebSockets yang sudah dibuka di VPS
-        const CLIENT_ID = "cleanify_web_" + Math.random().toString(16).substr(2, 8);
+        // --- CONFIGURATION ---
+        const BROKER = "iot.anons.biz.id"; 
+        const PORT = 443; 
+        const PATH = "/mqtt"; // Gunakan /mqtt agar sesuai dengan location Nginx
+        const CLIENT_ID = "CLNFY_WEB_" + Math.random().toString(16).substr(2, 4);
 
-        const client = new Paho.MQTT.Client(BROKER, PORT, CLIENT_ID);
+        const client = new Paho.Client(BROKER, PORT, PATH, CLIENT_ID);
+
+        function startConnect() {
+            client.connect({
+                useSSL: true,
+                timeout: 5,
+                keepAliveInterval: 30,
+                onSuccess: onConnect,
+                onFailure: (err) => {
+                    console.log("Connect Failed:", err);
+                    setTimeout(startConnect, 5000);
+                }
+            });
+        }
+
+        client.onMessageArrived = (msg) => {
+            console.log("Topic:", msg.destinationName, "| Payload:", msg.payloadString);
+            
+            if(msg.destinationName === "sensor/temp") {
+                let val = parseFloat(msg.payloadString).toFixed(1);
+                document.getElementById('temp-val').innerText = val;
+                document.getElementById('temp-bar').style.width = Math.min(val, 100) + "%";
+                document.getElementById('temp-bar').style.backgroundColor = val > 45 ? "#ff00c1" : "#00f3ff";
+            }
+            if(msg.destinationName === "actuator/relay/state") {
+                updatePowerUI(msg.payloadString === "ON");
+            }
+        };
+
+        client.onConnectionLost = (err) => {
+            updateStatusUI(false);
+            setTimeout(startConnect, 5000);
+        };
 
         function onConnect() {
-            console.log("Connected to Private Broker");
-            const statusBox = document.getElementById('mqtt-status');
-            const dot = document.getElementById('status-dot');
-            const txt = document.getElementById('status-text');
-
-            statusBox.className = "flex items-center gap-3 bg-cyan-900/20 px-5 py-2 border border-cyan-500/50 rounded-full shadow-[0_0_20px_rgba(0,243,255,0.3)]";
-            dot.className = "w-2 h-2 rounded-full bg-cyan-400";
-            txt.className = "text-[10px] font-bold text-cyan-400 uppercase tracking-widest";
-            txt.innerText = "System Connected";
-            
+            console.log("Connected to Cloud!");
+            updateStatusUI(true);
             client.subscribe("sensor/temp");
             client.subscribe("actuator/relay/state");
         }
 
-        client.onConnectionLost = (resp) => {
-            console.log("Connection Lost: " + resp.errorMessage);
-            setTimeout(() => location.reload(), 5000); 
-        };
-
-        client.onMessageArrived = (msg) => {
-            if(msg.destinationName === "sensor/temp") {
-                const val = msg.payloadString;
-                document.getElementById('temp-val').innerText = val;
-                document.getElementById('temp-bar').style.width = val + "%";
-                document.getElementById('temp-bar').style.backgroundColor = val > 40 ? "var(--neon-pink)" : "var(--neon-cyan)";
-            }
-            if(msg.destinationName === "actuator/relay/state") {
-                updateUI(msg.payloadString === "ON");
-            }
-        };
-
-        function setPower(status) {
-            const msg = status ? "ON" : "OFF";
-            sendMQTT("actuator/relay", msg);
-            updateUI(status); // Optimistic UI update
-        }
-
-        function updateUI(isOn) {
-            const btnOn = document.getElementById('pwr-on');
-            const btnOff = document.getElementById('pwr-off');
-            const label = document.getElementById('pwr-label');
-
-            if(isOn) {
-                btnOn.classList.add('btn-on', 'active');
-                btnOff.classList.remove('btn-off', 'active');
-                label.innerText = "State: FULL POWER ACTIVE";
-                label.className = "mt-6 text-center text-[10px] text-green-400 font-bold animate-pulse uppercase tracking-widest";
-            } else {
-                btnOff.classList.add('btn-off', 'active');
-                btnOn.classList.remove('btn-on', 'active');
-                label.innerText = "State: POWER TERMINATED";
-                label.className = "mt-6 text-center text-[10px] text-pink-500 font-bold uppercase tracking-widest";
-            }
-        }
-
-        function sendMQTT(topic, payload) {
-            if (!client.isConnected()) return;
-            const message = new Paho.MQTT.Message(payload);
+        function sendControl(topic, payload) {
+            if(!client.isConnected()) return;
+            let message = new Paho.Message(payload);
             message.destinationName = topic;
             client.send(message);
         }
 
-        // Jalankan koneksi (Gunakan useSSL: false jika VPS belum ada SSL/HTTPS)
-        client.connect({
-            onSuccess: onConnect, 
-            useSSL: false,
-            keepAliveInterval: 30,
-            onFailure: (err) => console.log("Connect Failed: " + err.errorMessage)
-        });
+        function updateStatusUI(online) {
+            const statusBox = document.getElementById('mqtt-status');
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+
+            if(online) {
+                statusBox.className = "flex items-center gap-3 bg-cyan-900/30 px-6 py-2 border border-cyan-500 rounded-full shadow-[0_0_20px_rgba(0,243,255,0.4)]";
+                dot.className = "w-2 h-2 rounded-full bg-cyan-400 pulse-cyan";
+                txt.className = "text-[10px] font-bold text-cyan-400 uppercase tracking-widest";
+                txt.innerText = "System Online";
+            } else {
+                statusBox.className = "flex items-center gap-3 bg-red-900/20 px-6 py-2 border border-red-500/50 rounded-full";
+                dot.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
+                txt.className = "text-[10px] font-bold text-red-500 uppercase tracking-widest";
+                txt.innerText = "Offline";
+            }
+        }
+
+        function updatePowerUI(isOn) {
+            const btnOn = document.getElementById('btn-pwr-on');
+            const btnOff = document.getElementById('btn-pwr-off');
+            const label = document.getElementById('pwr-status');
+
+            if(isOn) {
+                btnOn.classList.add('btn-active-on');
+                btnOff.classList.remove('btn-active-off');
+                label.innerText = "State: FULL POWER ACTIVE";
+                label.className = "mt-8 text-center text-[10px] text-green-400 font-bold uppercase animate-pulse tracking-widest";
+            } else {
+                btnOff.classList.add('btn-active-off');
+                btnOn.classList.remove('btn-active-on');
+                label.innerText = "State: SYSTEM TERMINATED";
+                label.className = "mt-8 text-center text-[10px] text-pink-500 font-bold uppercase tracking-widest";
+            }
+        }
+
+        startConnect();
     </script>
 </body>
 </html>
