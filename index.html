@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEBULA - Banana Edition (Final)</title>
+    <title>NEBULA - Ultra Final Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600;900&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
@@ -11,178 +11,160 @@
         :root {
             --neon-cyan: #00f2fe;
             --neon-magenta: #ff0080;
-            --panel-bg: rgba(10, 15, 30, 0.85);
+            --panel-bg: rgba(7, 10, 20, 0.9);
         }
 
         body {
             margin: 0; background: #020205; color: #fff;
-            font-family: 'Exo 2', sans-serif;
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+            font-family: 'Exo 2', sans-serif; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow-x: hidden;
             background-image: radial-gradient(circle at center, #0d1b2a 0%, #020205 100%);
-            position: relative;
         }
 
-        /* --- BACKGROUND ANIMATIONS --- */
+        /* --- BACKGROUND COSMOS --- */
         .universe { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-        
-        .moving-planet {
-            position: absolute; width: 200px; height: 200px;
+
+        /* Rotating Galaxy */
+        .galaxy {
+            position: absolute; top: -10%; right: -10%;
+            width: 600px; height: 600px;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png'), 
+                        radial-gradient(circle, rgba(106, 17, 203, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: rotateGalaxy 60s linear infinite;
+        }
+        @keyframes rotateGalaxy { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Moving & Orbiting Planet */
+        .planet-orbit {
+            position: absolute; width: 120px; height: 120px;
             background: radial-gradient(circle at 30% 30%, #1e40af, #000);
             border-radius: 50%;
-            box-shadow: -10px 10px 60px rgba(30, 64, 175, 0.2);
-            top: 20%; left: 10%;
-            animation: floating 20s infinite ease-in-out;
+            box-shadow: inset -10px -10px 30px rgba(0,0,0,0.8), 0 0 40px rgba(30, 64, 175, 0.3);
+            animation: planetFly 40s infinite linear;
+            z-index: -1;
+        }
+        @keyframes planetFly {
+            0% { transform: translate(-20vw, 20vh) rotate(0deg); }
+            50% { transform: translate(110vw, 50vh) rotate(180deg); }
+            100% { transform: translate(-20vw, 80vh) rotate(360deg); }
         }
 
-        @keyframes floating {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(50px, 30px) scale(1.05); }
-        }
-
+        /* Shooting Stars */
         .shooting-star {
             position: absolute; height: 2px;
             background: linear-gradient(90deg, #fff, transparent);
-            z-index: -1; pointer-events: none;
             animation: shoot var(--dur) linear forwards;
+            opacity: 0;
         }
-
         @keyframes shoot {
             0% { transform: translateX(0) translateY(0) rotate(-35deg) scaleX(0); opacity: 0; }
-            10% { opacity: 1; scaleX(1); }
-            100% { transform: translateX(-1000px) translateY(700px) rotate(-35deg); opacity: 0; }
+            10% { opacity: 1; scaleX(1.5); }
+            100% { transform: translateX(-1200px) translateY(800px) rotate(-35deg); opacity: 0; }
         }
 
-        /* Twinkling Stars */
-        .star {
-            position: absolute; background-color: #fff; border-radius: 50%;
-            animation: twinkle var(--dur) infinite ease-in-out;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        /* --- INTERFACE PANEL --- */
-        .main-panel {
-            width: 950px; background: var(--panel-bg);
-            backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px; padding: 50px;
-            box-shadow: 0 0 100px rgba(0,0,0,0.9); position: relative;
-        }
-
-        /* SENTUHAN AKHIR: JUDUL NEBULA MENYALA GRADIENT NEON */
+        /* --- NEBULA TEXT GLOW --- */
         .title-nebula {
-            font-family: 'Orbitron', sans-serif; font-size: 6rem; font-weight: 900;
-            background: linear-gradient(to right, var(--neon-cyan), #fff 50%, var(--neon-magenta));
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3.5rem, 12vw, 6.5rem);
+            font-weight: 900; text-align: center;
+            background: linear-gradient(90deg, var(--neon-cyan), #fff, var(--neon-magenta), var(--neon-cyan));
+            background-size: 200% auto;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center;
-            animation: neonPulse 3s infinite ease-in-out;
+            animation: shimmer 4s linear infinite, neonGlow 3s infinite ease-in-out;
+        }
+        @keyframes shimmer { to { background-position: 200% center; } }
+        @keyframes neonGlow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.5)); }
+            50% { filter: drop-shadow(0 0 35px rgba(255, 0, 128, 0.7)); }
         }
 
-        @keyframes neonPulse {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.4)) drop-shadow(0 0 20px rgba(255, 0, 128, 0.2)); }
-            50% { filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.8)) drop-shadow(0 0 40px rgba(255, 0, 128, 0.6)); }
+        /* --- DASHBOARD ELEMENTS --- */
+        .main-panel {
+            width: 95%; max-width: 1100px;
+            background: var(--panel-bg); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px; padding: 2.5rem;
+            box-shadow: 0 0 80px rgba(0,0,0,0.9);
         }
 
-        /* --- GAUGE SUHU --- */
-        .gauge-container { position: relative; width: 180px; height: 180px; margin: 0 auto; }
-        svg.gauge { transform: rotate(-90deg); width: 180px; height: 180px; }
-        .gauge-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 12; }
-        .gauge-progress {
-            fill: none; stroke: var(--neon-cyan); stroke-width: 12;
+        .gauge-svg { transform: rotate(-90deg); width: 160px; height: 160px; }
+        .gauge-bar {
+            fill: none; stroke: var(--neon-cyan); stroke-width: 10;
             stroke-linecap: round; stroke-dasharray: 440;
-            stroke-dashoffset: 440; transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            stroke-dashoffset: 440; transition: stroke-dashoffset 1s ease-out;
             filter: drop-shadow(0 0 10px var(--neon-cyan));
         }
 
-        /* --- BUTTONS --- */
-        /* SENTUHAN AKHIR: BUTTON ANIMASI MENYALA SAAT HOVER */
-        .btn-core {
-            width: 100%; padding: 18px; border-radius: 15px; margin-bottom: 12px;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
-            display: flex; justify-content: space-between; align-items: center; 
-            transition: all 0.3s ease-in-out;
-            position: relative; overflow: hidden;
+        .btn-action {
+            width: 100%; padding: 1.2rem; border-radius: 15px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .btn-core:hover { 
-            background: rgba(0, 242, 254, 0.15); 
-            border-color: var(--neon-cyan); 
-            transform: translateY(-3px);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-            color: #fff;
+        .btn-action:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
         }
-
-        /* Khusus tombol Emergency Kill (hover magenta) */
-        .btn-emergency:hover {
+        .btn-off:hover {
             background: rgba(255, 0, 128, 0.15) !important;
             border-color: var(--neon-magenta) !important;
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5) !important;
+            box-shadow: 0 0 25px rgba(255, 0, 128, 0.5) !important;
         }
 
-        /* Khusus tombol Servo (hover cyan) */
-        .btn-servo:hover {
-            border-color: var(--neon-cyan) !important;
-            background: rgba(0, 242, 254, 0.1) !important;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4) !important;
-            color: var(--neon-cyan) !important;
-        }
-
-        .status-led { width: 10px; height: 10px; border-radius: 50%; background: #222; transition: 0.3s; }
+        .led { width: 12px; height: 12px; border-radius: 50%; background: #1a1a1a; transition: 0.3s; }
         .led-active { background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
-        .led-emergency { background: var(--neon-magenta); box-shadow: 0 0 15px var(--neon-magenta); }
     </style>
 </head>
 <body>
 
     <div class="universe" id="universe">
-        <div class="moving-planet"></div>
-        </div>
+        <div class="galaxy"></div>
+        <div class="planet-orbit"></div>
+    </div>
 
     <div class="main-panel">
-        <header class="mb-10">
+        <header class="mb-10 text-center">
             <h1 class="title-nebula">NEBULA</h1>
-            <p class="text-[10px] text-center tracking-[0.6em] text-cyan-400 opacity-60">NETWORKED ELECTRONIC BUILDING & USER LIGHTING AUTOMATION</p>
+            <p class="text-[10px] tracking-[0.5em] text-cyan-400 opacity-60 font-bold uppercase">Networked Electronic Building & Automation</p>
         </header>
 
-        <div class="grid grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="bg-white/5 border border-white/10 p-8 rounded-3xl text-center">
-                <span class="text-[9px] font-black tracking-widest text-slate-400 mb-8 block uppercase">KELEMBAPAN</span>
-                <div class="gauge-container">
-                    <svg class="gauge">
-                        <circle class="gauge-bg" cx="90" cy="90" r="70"></circle>
-                        <circle id="gauge-bar" class="gauge-progress" cx="90" cy="90" r="70"></circle>
+                <span class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-8 block">Kelembapan Kamar</span>
+                <div class="relative w-[160px] h-[160px] mx-auto">
+                    <svg class="gauge-svg">
+                        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"></circle>
+                        <circle id="gauge-fill" class="gauge-bar" cx="80" cy="80" r="70"></circle>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span id="temp-num" class="text-5xl font-black italic">--</span>
-                        <span class="text-[9px] font-bold text-cyan-400 mt-1">°C</span>
+                        <span id="temp-val" class="text-5xl font-black italic">--</span>
+                        <span class="text-[10px] font-bold text-cyan-400">°CELSIUS</span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white/5 border border-white/10 p-8 rounded-3xl flex flex-col justify-center">
-                <span class="text-[9px] font-black tracking-widest text-slate-400 mb-8 block uppercase text-center">STOP KONTAK</span>
-                <button onclick="sendControl('actuator/relay', 'ON')" class="btn-core">
-                    POWER ON <div id="led-on" class="status-led"></div>
+            <div class="bg-white/5 border border-white/10 p-8 rounded-3xl flex flex-col justify-center space-y-4">
+                <span class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-4 block text-center">Stop Kontak</span>
+                <button onclick="sendControl('actuator/relay', 'ON')" class="btn-action">
+                    Power ON <div id="led-on" class="led"></div>
                 </button>
-                <button onclick="sendControl('actuator/relay', 'OFF')" class="btn-core btn-emergency">
-                    POWER OFF<div id="led-off" class="status-led"></div>
+                <button onclick="sendControl('actuator/relay', 'OFF')" class="btn-action btn-off">
+                    Power OFF <div id="led-off" class="led"></div>
                 </button>
-                <p id="status-text" class="text-[9px] text-center mt-6 font-bold tracking-tighter opacity-40">LINK STATUS: STANDBY</p>
+                <p id="link-status" class="text-[9px] text-center mt-4 font-bold opacity-30">OFFLINE</p>
             </div>
 
             <div class="bg-white/5 border border-white/10 p-8 rounded-3xl">
-                <span class="text-[9px] font-black tracking-widest text-slate-400 mb-10 block uppercase text-center">GORDEN</span>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onmousedown="sendControl('actuator/servo', 'LEFT')" class="btn-core btn-servo !p-10 rounded-2xl !justify-center font-bold text-2xl transition-all">
-                        ❮
-                    </button>
-                    <button onmousedown="sendControl('actuator/servo', 'RIGHT')" class="btn-core btn-servo !p-10 rounded-2xl !justify-center font-bold text-2xl transition-all">
-                        ❯
-                    </button>
+                <span class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-8 block text-center">Gorden</span>
+                <div class="flex gap-4">
+                    <button onmousedown="sendControl('actuator/servo', 'LEFT')" class="btn-action !justify-center py-10 text-3xl hover:text-cyan-400">❮</button>
+                    <button onmousedown="sendControl('actuator/servo', 'RIGHT')" class="btn-action !justify-center py-10 text-3xl hover:text-cyan-400">❯</button>
                 </div>
             </div>
         </div>
@@ -191,88 +173,79 @@
     <script>
         const universe = document.getElementById('universe');
 
-        // 1. GEMERLAP BINTANG GENERATOR
+        // Stars Generator
         for (let i = 0; i < 150; i++) {
             const star = document.createElement('div');
-            star.className = 'star';
-            const size = Math.random() * 2.5 + 0.5 + 'px';
-            star.style.width = size;
-            star.style.height = size;
+            star.style.position = 'absolute';
+            star.style.width = Math.random() * 2.5 + 'px';
+            star.style.height = star.style.width;
+            star.style.backgroundColor = '#fff';
             star.style.top = Math.random() * 100 + '%';
             star.style.left = Math.random() * 100 + '%';
-            star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's'); // Kedipan acak 2-5 detik
+            star.style.borderRadius = '50%';
+            star.style.opacity = Math.random();
+            star.style.boxShadow = `0 0 ${Math.random() * 5}px #fff`;
             universe.appendChild(star);
         }
 
-        // 2. SHOOTING STARS
+        // More Shooting Stars
         function launchStar() {
             const s = document.createElement('div');
             s.className = 'shooting-star';
-            s.style.top = Math.random() * 40 + '%';
-            s.style.left = (Math.random() * 50 + 50) + '%';
-            s.style.width = (Math.random() * 150 + 100) + 'px';
-            s.style.setProperty('--dur', (Math.random() * 1 + 0.8) + 's');
+            s.style.top = Math.random() * 60 + '%';
+            s.style.left = (Math.random() * 40 + 60) + '%';
+            s.style.width = (Math.random() * 200 + 150) + 'px';
+            s.style.setProperty('--dur', (Math.random() * 0.7 + 0.4) + 's');
             universe.appendChild(s);
-            setTimeout(() => s.remove(), 2000);
+            setTimeout(() => s.remove(), 1200);
         }
-        setInterval(() => { if(Math.random() > 0.6) launchStar(); }, 3000);
+        setInterval(() => { if(Math.random() > 0.4) launchStar(); }, 1500); // Intensitas lebih tinggi
 
-        // 3. GAUGE ANIMATION
-        function setTemperature(val) {
-            const circle = document.getElementById('gauge-bar');
-            const radius = circle.r.baseVal.value;
-            const circumference = 2 * Math.PI * radius;
-            const offset = circumference - (val / 100) * circumference;
-            
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = offset;
-            document.getElementById('temp-num').innerText = val.toFixed(1);
-        }
-
-        // 4. MQTT LOGIC
+        // MQTT & Logic
         const BROKER = "iot.anons.biz.id";
-        const CLIENT_ID = "NEBULA_BANANA_" + Math.random().toString(16).substr(2, 4);
-        const client = new Paho.Client(BROKER, 443, "/mqtt", CLIENT_ID);
+        const client = new Paho.Client(BROKER, 443, "/mqtt", "NEBULA_ULTRA_" + Math.random().toString(16).substr(2, 4));
+
+        function updateGauge(val) {
+            const circle = document.getElementById('gauge-fill');
+            const circumference = 2 * Math.PI * 70;
+            const offset = circumference - (val / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            document.getElementById('temp-val').innerText = val.toFixed(1);
+        }
 
         function startConnect() {
             client.connect({
                 useSSL: true,
                 onSuccess: () => {
-                    console.log("Connected to NEBULA Core");
-                    document.getElementById('status-text').innerText = "QUANTUM LINK ESTABLISHED";
-                    document.getElementById('status-text').style.opacity = "1";
-                    document.getElementById('status-text').style.color = "#00f2fe";
+                    const st = document.getElementById('link-status');
+                    st.innerText = "QUANTUM LINK ESTABLISHED";
+                    st.style.opacity = "1"; st.style.color = "#00f2fe";
                     client.subscribe("sensor/temp");
                     client.subscribe("actuator/relay/state");
                 },
-                onFailure: (err) => {
-                    console.log("Connection Failed:", err);
-                    setTimeout(startConnect, 5000);
-                }
+                onFailure: () => setTimeout(startConnect, 5000)
             });
         }
 
         client.onMessageArrived = (msg) => {
-            if(msg.destinationName === "sensor/temp") {
-                setTemperature(parseFloat(msg.payloadString));
-            }
+            if(msg.destinationName === "sensor/temp") updateGauge(parseFloat(msg.payloadString));
             if(msg.destinationName === "actuator/relay/state") {
                 const isOn = msg.payloadString === "ON";
-                document.getElementById('led-on').className = isOn ? 'status-led led-active' : 'status-led';
-                document.getElementById('led-off').className = !isOn ? 'status-led led-emergency' : 'status-led';
+                document.getElementById('led-on').className = isOn ? 'led led-active' : 'led';
+                document.getElementById('led-off').className = !isOn ? 'led led-active !bg-[#ff0080]' : 'led';
             }
         };
 
-        function sendControl(topic, payload) {
-            if(!client.isConnected()) return;
-            const message = new Paho.Message(payload);
-            message.destinationName = topic;
-            client.send(message);
+        function sendControl(t, p) {
+            if(client.isConnected()) {
+                const m = new Paho.Message(p);
+                m.destinationName = t;
+                client.send(m);
+            }
         }
 
-        // INIT
         startConnect();
-        setTemperature(0); // Start at 0
+        updateGauge(0);
     </script>
 </body>
 </html>
